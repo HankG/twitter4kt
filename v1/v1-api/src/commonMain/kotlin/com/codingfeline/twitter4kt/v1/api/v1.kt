@@ -38,23 +38,7 @@ import kotlinx.serialization.json.jsonArray
 @OptIn(Twitter4ktInternalAPI::class)
 internal suspend inline fun <reified T> ExtendableApiClient.getInternal(url: Url): ApiResult<T> {
     return try {
-        val result = httpClient.get<JsonObject>(url)
-        if (result.containsKey("errors")) {
-            ApiResult.failure(TwitterError.fromJsonObject(json, result).asException())
-        } else {
-            ApiResult.success(json.decodeFromJsonElement(result))
-        }
-    } catch (e: ClientRequestException) {
-        ApiResult.failure(e)
-    } catch (e: Exception) {
-        ApiResult.failure(e)
-    }
-}
-
-@OptIn(Twitter4ktInternalAPI::class)
-internal suspend inline fun <reified T> ExtendableApiClient.getInternalListResponse(url: Url): ApiResult<List<T>> {
-    return try {
-        val response = httpClient.get<List<T>>(url)
+        val response = httpClient.get<T>(url)
         ApiResult.success(response)
     } catch (e: ClientRequestException) {
         ApiResult.failure(e.asTwitterApiException(json) ?: e)
